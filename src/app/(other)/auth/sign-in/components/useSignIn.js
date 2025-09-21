@@ -33,12 +33,20 @@ const useSignIn = () => {
   });
   const login = handleSubmit(async values => {
     setLoading(true);
-    signIn('credentials', {
-      redirect: false,
-      email: values?.email,
-      password: values?.password
-    }).then(res => {
-      if (res?.ok) {
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email: values?.email,
+          password: values?.password
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        // Optionally store token/user info here
         push(queryParams['redirectTo'] ?? '/dashboards/analytics');
         showNotification({
           message: 'Successfully logged in. Redirecting....',
@@ -46,17 +54,63 @@ const useSignIn = () => {
         });
       } else {
         showNotification({
-          message: res?.error ?? '',
+          message: data?.error || 'Login failed',
           variant: 'danger'
         });
       }
-    });
+    } catch (err) {
+      showNotification({
+        message: 'Network error',
+        variant: 'danger'
+      });
+    }
     setLoading(false);
   });
+
+  // Example: get current user info
+  const getMe = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/me", { method: "GET" });
+      return await res.json();
+    } catch {
+      return null;
+    }
+  };
+
+  // Example: forgot password
+  const forgotPassword = async (email) => {
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+      });
+      return await res.json();
+    } catch {
+      return null;
+    }
+  };
+
+  // Example: reset password
+  const resetPassword = async (payload) => {
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      return await res.json();
+    } catch {
+      return null;
+    }
+  };
   return {
     loading,
     login,
-    control
+    control,
+    getMe,
+    forgotPassword,
+    resetPassword
   };
 };
 export default useSignIn;
