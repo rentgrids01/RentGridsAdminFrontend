@@ -12,7 +12,7 @@ const PropertyAddPage = () => {
       <Row>
         <PropertyAddCard />
         <Col xl={9} lg={8}>
-          <FileUpload title="Add Property Photo" />
+          {/* <FileUpload title="Add Property Photo" /> */}
           <PropertyAdd />
         </Col>
       </Row>
