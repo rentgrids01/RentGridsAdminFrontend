@@ -751,6 +751,202 @@
 // };
 
 // export default PropertyAdd;
+// 'use client'
+
+// import ChoicesFormInput from '@/components/from/ChoicesFormInput'
+// import TextAreaFormInput from '@/components/from/TextAreaFormInput'
+// import TextFormInput from '@/components/from/TextFormInput'
+// import { yupResolver } from '@hookform/resolvers/yup'
+// import { Button, Card, CardBody, CardHeader, CardTitle, Col, Row } from 'react-bootstrap'
+// import { useForm, Controller } from 'react-hook-form'
+// import * as yup from 'yup'
+// import { useState, useEffect } from 'react'
+
+// const PropertyAdd = () => {
+//   const [imageFiles, setImageFiles] = useState([])
+//   const [documentFiles, setDocumentFiles] = useState([])
+//   const [isSubmitting, setIsSubmitting] = useState(false)
+//   const [listingType, setListingType] = useState('rent')
+
+//   const HARDCODED_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YjMxOGE2ZDVmYzA3NGFmY2I4ODkzNCIsInR5cGUiOiJhZG1pbiIsImlhdCI6MTc1ODUzNzk1MCwiZXhwIjoxNzU5MTQyNzUwfQ.8uxrfrh1M_rTBL6MQK1HHoZv2ep9Yyb95anwW0PbQhQ'
+
+//   const propertySchema = yup.object({
+//     owner_id: yup.string().required('Owner ID is required'),
+//     title: yup.string().required('Please enter property title'),
+//     description: yup.string().required('Please enter description'),
+//     category_id: yup.string().required('Category is required'),
+//     property_type: yup.string().required('Property type is required'),
+//     listing_type: yup.string().required('Listing type is required'),
+//     monthly_rent: yup.number()
+//       .when('listing_type', {
+//         is: 'rent',
+//         then: (schema) => schema.required('Monthly rent is required').positive(),
+//         otherwise: (schema) => schema.notRequired()
+//       }),
+//     sale_price: yup.number()
+//       .when('listing_type', {
+//         is: 'sale',
+//         then: (schema) => schema.required('Sale price is required').positive(),
+//         otherwise: (schema) => schema.notRequired()
+//       }),
+//     security_deposit: yup.number()
+//       .when('listing_type', {
+//         is: 'rent',
+//         then: (schema) => schema.required('Security deposit is required').positive(),
+//         otherwise: (schema) => schema.notRequired()
+//       }),
+//     area: yup.number().required('Area is required').positive(),
+//     bedroom: yup.number().required('Bedroom count is required').integer().min(0),
+//     bathroom: yup.number().required('Bathroom count is required').integer().min(0),
+//     city: yup.string().required('City is required'),
+//     state: yup.string().required('State is required'),
+//     locality: yup.string().required('Locality is required'),
+//     zipcode: yup.string().required('Zipcode is required'),
+//     full_address: yup.string().required('Full address is required'),
+//     images: yup.mixed().test('required', 'At least one image is required', () => imageFiles.length > 0),
+//     documents: yup.mixed().test('required', 'At least one document is required', () => documentFiles.length > 0)
+//   })
+
+//   const { handleSubmit, control, formState: { errors }, watch } = useForm({
+//     resolver: yupResolver(propertySchema),
+//     defaultValues: { owner_id: '', listing_type: 'rent' }
+//   })
+
+//   const watchedListingType = watch('listing_type')
+//   useEffect(() => setListingType(watchedListingType), [watchedListingType])
+
+//   const handleImageChange = (e) => setImageFiles(Array.from(e.target.files))
+//   const handleDocumentChange = (e) => setDocumentFiles(Array.from(e.target.files))
+
+//   const onSubmit = async (data) => {
+//     setIsSubmitting(true)
+
+//     try {
+//       const formData = new FormData()
+//       Object.keys(data).forEach(key => { if (data[key]) formData.append(key, data[key]) })
+//       imageFiles.forEach(file => formData.append('images', file))
+//       documentFiles.forEach(file => formData.append('documents', file))
+
+//       const response = await fetch('http://localhost:5000/api/properties', {
+//         method: 'POST',
+//         headers: {
+//           'Authorization': `Bearer ${HARDCODED_TOKEN}`
+//         },
+//         body: formData
+//       })
+
+//       if (response.ok) {
+//         alert('Property created successfully!')
+//         window.location.reload()
+//       } else {
+//         const error = await response.json()
+//         alert(`Error: ${error.message || 'Failed to create property'}`)
+//       }
+//     } catch (err) {
+//       console.error(err)
+//       alert('An error occurred while submitting the form')
+//     } finally {
+//       setIsSubmitting(false)
+//     }
+//   }
+
+//   const SimpleSelect = ({ field, options, placeholder, error }) => (
+//     <select {...field} className={`form-control ${error ? 'is-invalid' : ''}`}>
+//       <option value="">{placeholder}</option>
+//       {options.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+//     </select>
+//   )
+
+//   const propertyTypeOptions = [
+//     { value: 'apartment', label: 'Apartment' },
+//     { value: 'house', label: 'House' },
+//     { value: 'villa', label: 'Villa' },
+//     { value: 'condo', label: 'Condo' }
+//   ]
+
+//   const categoryOptions = [
+//     { value: 'residential', label: 'Residential' },
+//     { value: 'commercial', label: 'Commercial' },
+//     { value: 'industrial', label: 'Industrial' },
+//     { value: 'land', label: 'Land' }
+//   ]
+
+//   const listingTypeOptions = [
+//     { value: 'rent', label: 'Rent' },
+//     { value: 'sale', label: 'Sale' }
+//   ]
+
+//   return (
+//     <form onSubmit={handleSubmit(onSubmit)} encType="multipart/form-data">
+//       <Card>
+//         <CardHeader>
+//           <CardTitle as="h4">Property Information</CardTitle>
+//         </CardHeader>
+//         <CardBody>
+//           <Row>
+//             <Col lg={6}>
+//               <TextFormInput control={control} name="owner_id" placeholder="Paste Owner ID" label="Owner ID" error={errors.owner_id?.message} />
+//             </Col>
+//             <Col lg={6}>
+//               <TextFormInput control={control} name="title" placeholder="Luxury 3BHK Apartment" label="Property Title" error={errors.title?.message} />
+//             </Col>
+//             <Col lg={6}>
+//               <label className="form-label">Property Type</label>
+//               <Controller name="property_type" control={control} render={({ field }) => <SimpleSelect field={field} options={propertyTypeOptions} placeholder="Select Property Type" error={errors.property_type} />} />
+//               {errors.property_type && <div className="text-danger small mt-1">{errors.property_type.message}</div>}
+//             </Col>
+//             <Col lg={6}>
+//               <label className="form-label">Property Category</label>
+//               <Controller name="category_id" control={control} render={({ field }) => <SimpleSelect field={field} options={categoryOptions} placeholder="Select Category" error={errors.category_id} />} />
+//               {errors.category_id && <div className="text-danger small mt-1">{errors.category_id.message}</div>}
+//             </Col>
+//             <Col lg={6}>
+//               <label className="form-label">Listing Type</label>
+//               <Controller name="listing_type" control={control} render={({ field }) => <SimpleSelect field={field} options={listingTypeOptions} placeholder="Select Listing Type" error={errors.listing_type} />} />
+//               {errors.listing_type && <div className="text-danger small mt-1">{errors.listing_type.message}</div>}
+//             </Col>
+
+//             {listingType === 'rent' ? (
+//               <>
+//                 <Col lg={6}><TextFormInput control={control} name="monthly_rent" type="number" placeholder="25000" label="Monthly Rent (₹)" error={errors.monthly_rent?.message} /></Col>
+//                 <Col lg={6}><TextFormInput control={control} name="security_deposit" type="number" placeholder="50000" label="Security Deposit (₹)" error={errors.security_deposit?.message} /></Col>
+//               </>
+//             ) : (
+//               <Col lg={6}><TextFormInput control={control} name="sale_price" type="number" placeholder="5000000" label="Sale Price (₹)" error={errors.sale_price?.message} /></Col>
+//             )}
+
+//             <Col lg={4}><TextFormInput control={control} name="area" type="number" placeholder="1200" label="Area (sq ft)" error={errors.area?.message} /></Col>
+//             <Col lg={4}><TextFormInput control={control} name="bedroom" type="number" placeholder="3" label="Bedrooms" error={errors.bedroom?.message} /></Col>
+//             <Col lg={4}><TextFormInput control={control} name="bathroom" type="number" placeholder="2" label="Bathrooms" error={errors.bathroom?.message} /></Col>
+//             <Col lg={4}><TextFormInput control={control} name="city" placeholder="Mumbai" label="City" error={errors.city?.message} /></Col>
+//             <Col lg={4}><TextFormInput control={control} name="state" placeholder="Maharashtra" label="State" error={errors.state?.message} /></Col>
+//             <Col lg={4}><TextFormInput control={control} name="locality" placeholder="Bandra West" label="Locality" error={errors.locality?.message} /></Col>
+//             <Col lg={4}><TextFormInput control={control} name="zipcode" placeholder="400050" label="Zipcode" error={errors.zipcode?.message} /></Col>
+//             <Col lg={8}><TextFormInput control={control} name="full_address" placeholder="123 Bandra West, Mumbai" label="Full Address" error={errors.full_address?.message} /></Col>
+//             <Col lg={12}><TextAreaFormInput control={control} name="description" label="Description" rows={3} placeholder="Beautiful apartment with modern amenities" error={errors.description?.message} /></Col>
+
+//             <Col lg={6}><input type="file" className={`form-control ${errors.images ? 'is-invalid' : ''}`} multiple accept="image/*" onChange={(e) => setImageFiles(Array.from(e.target.files))} /></Col>
+//             <Col lg={6}><input type="file" className={`form-control ${errors.documents ? 'is-invalid' : ''}`} multiple accept=".pdf,.doc,.docx" onChange={(e) => setDocumentFiles(Array.from(e.target.files))} /></Col>
+//           </Row>
+//         </CardBody>
+//       </Card>
+
+//       <Row className="justify-content-end g-2 mt-2">
+//         <Col lg={2}><Button variant="outline-primary" type="submit" className="w-100" disabled={isSubmitting}>{isSubmitting ? 'Creating...' : 'Create Property'}</Button></Col>
+//         <Col lg={2}><Button variant="danger" className="w-100" type="button" onClick={() => window.history.back()}>Cancel</Button></Col>
+//       </Row>
+//     </form>
+//   )
+// }
+
+// export default PropertyAdd
+
+
+
+
+
+
+
 'use client'
 
 import ChoicesFormInput from '@/components/from/ChoicesFormInput'
@@ -761,17 +957,16 @@ import { Button, Card, CardBody, CardHeader, CardTitle, Col, Row } from 'react-b
 import { useForm, Controller } from 'react-hook-form'
 import * as yup from 'yup'
 import { useState, useEffect } from 'react'
+import { useNotificationContext } from '@/context/useNotificationContext'
 
 const PropertyAdd = () => {
+  const { showNotification } = useNotificationContext()
   const [imageFiles, setImageFiles] = useState([])
   const [documentFiles, setDocumentFiles] = useState([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [listingType, setListingType] = useState('rent')
 
-  const HARDCODED_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YjMxOGE2ZDVmYzA3NGFmY2I4ODkzNCIsInR5cGUiOiJhZG1pbiIsImlhdCI6MTc1ODUzNzk1MCwiZXhwIjoxNzU5MTQyNzUwfQ.8uxrfrh1M_rTBL6MQK1HHoZv2ep9Yyb95anwW0PbQhQ'
-
   const propertySchema = yup.object({
-    owner_id: yup.string().required('Owner ID is required'),
     title: yup.string().required('Please enter property title'),
     description: yup.string().required('Please enter description'),
     category_id: yup.string().required('Category is required'),
@@ -809,7 +1004,7 @@ const PropertyAdd = () => {
 
   const { handleSubmit, control, formState: { errors }, watch } = useForm({
     resolver: yupResolver(propertySchema),
-    defaultValues: { owner_id: '', listing_type: 'rent' }
+    defaultValues: { listing_type: 'rent' }
   })
 
   const watchedListingType = watch('listing_type')
@@ -823,28 +1018,41 @@ const PropertyAdd = () => {
 
     try {
       const formData = new FormData()
-      Object.keys(data).forEach(key => { if (data[key]) formData.append(key, data[key]) })
+      const userId = localStorage.getItem('userId')
+      const token = localStorage.getItem('token')
+
+      if (!userId || !token) {
+        showNotification({ message: 'User not authenticated. Please login again.', variant: 'danger' })
+        setIsSubmitting(false)
+        return
+      }
+
+      formData.append('owner_id', userId)
+
+      Object.keys(data).forEach(key => {
+        if (data[key] !== undefined && key !== 'listing_type') formData.append(key, data[key])
+      })
+
       imageFiles.forEach(file => formData.append('images', file))
       documentFiles.forEach(file => formData.append('documents', file))
 
       const response = await fetch('http://localhost:5000/api/properties', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${HARDCODED_TOKEN}`
-        },
+        headers: { 'Authorization': `Bearer ${token}` },
         body: formData
       })
 
+      const result = await response.json()
+
       if (response.ok) {
-        alert('Property created successfully!')
+        showNotification({ message: 'Property created successfully!', variant: 'success' })
         window.location.reload()
       } else {
-        const error = await response.json()
-        alert(`Error: ${error.message || 'Failed to create property'}`)
+        showNotification({ message: result.message || 'Failed to create property', variant: 'danger' })
       }
     } catch (err) {
       console.error(err)
-      alert('An error occurred while submitting the form')
+      showNotification({ message: 'An unexpected error occurred while submitting the form.', variant: 'danger' })
     } finally {
       setIsSubmitting(false)
     }
@@ -884,12 +1092,8 @@ const PropertyAdd = () => {
         </CardHeader>
         <CardBody>
           <Row>
-            <Col lg={6}>
-              <TextFormInput control={control} name="owner_id" placeholder="Paste Owner ID" label="Owner ID" error={errors.owner_id?.message} />
-            </Col>
-            <Col lg={6}>
-              <TextFormInput control={control} name="title" placeholder="Luxury 3BHK Apartment" label="Property Title" error={errors.title?.message} />
-            </Col>
+            <Col lg={6}><TextFormInput control={control} name="title" placeholder="Luxury 3BHK Apartment" label="Property Title" error={errors.title?.message} /></Col>
+            <Col lg={6}><TextFormInput control={control} name="area" type="number" placeholder="1200" label="Area (sq ft)" error={errors.area?.message} /></Col>
             <Col lg={6}>
               <label className="form-label">Property Type</label>
               <Controller name="property_type" control={control} render={({ field }) => <SimpleSelect field={field} options={propertyTypeOptions} placeholder="Select Property Type" error={errors.property_type} />} />
@@ -915,7 +1119,6 @@ const PropertyAdd = () => {
               <Col lg={6}><TextFormInput control={control} name="sale_price" type="number" placeholder="5000000" label="Sale Price (₹)" error={errors.sale_price?.message} /></Col>
             )}
 
-            <Col lg={4}><TextFormInput control={control} name="area" type="number" placeholder="1200" label="Area (sq ft)" error={errors.area?.message} /></Col>
             <Col lg={4}><TextFormInput control={control} name="bedroom" type="number" placeholder="3" label="Bedrooms" error={errors.bedroom?.message} /></Col>
             <Col lg={4}><TextFormInput control={control} name="bathroom" type="number" placeholder="2" label="Bathrooms" error={errors.bathroom?.message} /></Col>
             <Col lg={4}><TextFormInput control={control} name="city" placeholder="Mumbai" label="City" error={errors.city?.message} /></Col>
@@ -925,8 +1128,8 @@ const PropertyAdd = () => {
             <Col lg={8}><TextFormInput control={control} name="full_address" placeholder="123 Bandra West, Mumbai" label="Full Address" error={errors.full_address?.message} /></Col>
             <Col lg={12}><TextAreaFormInput control={control} name="description" label="Description" rows={3} placeholder="Beautiful apartment with modern amenities" error={errors.description?.message} /></Col>
 
-            <Col lg={6}><input type="file" className={`form-control ${errors.images ? 'is-invalid' : ''}`} multiple accept="image/*" onChange={(e) => setImageFiles(Array.from(e.target.files))} /></Col>
-            <Col lg={6}><input type="file" className={`form-control ${errors.documents ? 'is-invalid' : ''}`} multiple accept=".pdf,.doc,.docx" onChange={(e) => setDocumentFiles(Array.from(e.target.files))} /></Col>
+            <Col lg={6}><input type="file" className={`form-control ${errors.images ? 'is-invalid' : ''}`} multiple accept="image/*" onChange={handleImageChange} /></Col>
+            <Col lg={6}><input type="file" className={`form-control ${errors.documents ? 'is-invalid' : ''}`} multiple accept=".pdf,.doc,.docx" onChange={handleDocumentChange} /></Col>
           </Row>
         </CardBody>
       </Card>
@@ -940,297 +1143,3 @@ const PropertyAdd = () => {
 }
 
 export default PropertyAdd
-
-// 'use client'
-
-// import ChoicesFormInput from '@/components/from/ChoicesFormInput'
-// import TextAreaFormInput from '@/components/from/TextAreaFormInput'
-// import TextFormInput from '@/components/from/TextFormInput'
-// import { yupResolver } from '@hookform/resolvers/yup'
-// import { Button, Card, CardBody, CardHeader, CardTitle, Col, Row } from 'react-bootstrap'
-// import { useForm, Controller } from 'react-hook-form'
-// import * as yup from 'yup'
-// import { useState, useEffect } from 'react'
-
-// const PropertyAdd = () => {
-//   const [imageFiles, setImageFiles] = useState([])
-//   const [documentFiles, setDocumentFiles] = useState([])
-//   const [isSubmitting, setIsSubmitting] = useState(false)
-//   const [listingType, setListingType] = useState('rent')
-
-//   const propertySchema = yup.object({
-//     owner_id: yup.string().required('Owner ID is required'), // ✅ manual field
-//     title: yup.string().required('Please enter property title'),
-//     description: yup.string().required('Please enter description'),
-//     category_id: yup.string().required('Category is required'),
-//     property_type: yup.string().required('Property type is required'),
-//     listing_type: yup.string().required('Listing type is required'),
-//     monthly_rent: yup.number()
-//       .when('listing_type', {
-//         is: 'rent',
-//         then: (schema) => schema.required('Monthly rent is required').positive(),
-//         otherwise: (schema) => schema.notRequired()
-//       }),
-//     sale_price: yup.number()
-//       .when('listing_type', {
-//         is: 'sale',
-//         then: (schema) => schema.required('Sale price is required').positive(),
-//         otherwise: (schema) => schema.notRequired()
-//       }),
-//     security_deposit: yup.number()
-//       .when('listing_type', {
-//         is: 'rent',
-//         then: (schema) => schema.required('Security deposit is required').positive(),
-//         otherwise: (schema) => schema.notRequired()
-//       }),
-//     area: yup.number().required('Area is required').positive(),
-//     bedroom: yup.number().required('Bedroom count is required').integer().min(0),
-//     bathroom: yup.number().required('Bathroom count is required').integer().min(0),
-//     city: yup.string().required('City is required'),
-//     state: yup.string().required('State is required'),
-//     locality: yup.string().required('Locality is required'),
-//     zipcode: yup.string().required('Zipcode is required'),
-//     full_address: yup.string().required('Full address is required'),
-//     images: yup.mixed().test('required', 'At least one image is required', () => {
-//       return imageFiles && imageFiles.length > 0
-//     }),
-//     documents: yup.mixed().test('required', 'At least one document is required', () => {
-//       return documentFiles && documentFiles.length > 0
-//     })
-//   })
-
-//   const {
-//     handleSubmit,
-//     control,
-//     formState: { errors },
-//     watch
-//   } = useForm({
-//     resolver: yupResolver(propertySchema),
-//     defaultValues: {
-//       owner_id: '', // ✅ empty, paste manually
-//       listing_type: 'rent'
-//     }
-//   })
-
-//   const watchedListingType = watch('listing_type')
-//   useEffect(() => {
-//     setListingType(watchedListingType)
-//   }, [watchedListingType])
-
-//   const handleImageChange = (e) => setImageFiles(Array.from(e.target.files))
-//   const handleDocumentChange = (e) => setDocumentFiles(Array.from(e.target.files))
-
-//   const onSubmit = async (data) => {
-//     setIsSubmitting(true)
-
-//     try {
-//       const formData = new FormData()
-
-//       // Append all fields
-//       Object.keys(data).forEach((key) => {
-//         if (data[key] !== undefined && data[key] !== null) {
-//           formData.append(key, data[key])
-//         }
-//       })
-
-//       imageFiles.forEach((file) => formData.append('images', file))
-//       documentFiles.forEach((file) => formData.append('documents', file))
-
-//       const response = await fetch('http://localhost:5000/api/properties', {
-//         method: 'POST',
-//         headers: {
-//                'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYwZGJmZDY3ZTc0NzY0ZCIsImlhdCI6MTY5MDk0MjAwMH0.abcdef1234567890',
-//   },
-//         body: formData
-//       })
-
-//       if (response.ok) {
-//         alert('Property created successfully!')
-//         window.location.reload()
-//       } else {
-//         const error = await response.json()
-//         alert(`Error: ${error.message || 'Failed to create property'}`)
-//       }
-//     } catch (error) {
-//       console.error('Error submitting form:', error)
-//       alert('An error occurred while submitting the form')
-//     } finally {
-//       setIsSubmitting(false)
-//     }
-//   }
-
-//   const SimpleSelect = ({ field, options, placeholder, error }) => (
-//     <select {...field} className={`form-control ${error ? 'is-invalid' : ''}`}>
-//       <option value="">{placeholder}</option>
-//       {options.map((option) => (
-//         <option key={option.value} value={option.value}>{option.label}</option>
-//       ))}
-//     </select>
-//   )
-
-//   const propertyTypeOptions = [
-//     { value: 'apartment', label: 'Apartment' },
-//     { value: 'house', label: 'House' },
-//     { value: 'villa', label: 'Villa' },
-//     { value: 'condo', label: 'Condo' }
-//   ]
-
-//   const categoryOptions = [
-//     { value: 'residential', label: 'Residential' },
-//     { value: 'commercial', label: 'Commercial' },
-//     { value: 'industrial', label: 'Industrial' },
-//     { value: 'land', label: 'Land' }
-//   ]
-
-//   const listingTypeOptions = [
-//     { value: 'rent', label: 'Rent' },
-//     { value: 'sale', label: 'Sale' }
-//   ]
-
-//   return (
-//     <form onSubmit={handleSubmit(onSubmit)} encType="multipart/form-data">
-//       <Card>
-//         <CardHeader>
-//           <CardTitle as={'h4'}>Property Information</CardTitle>
-//         </CardHeader>
-//         <CardBody>
-//           <Row>
-//             {/* ✅ Owner ID manual field */}
-//             <Col lg={6}>
-//               <div className="mb-3">
-//                 <TextFormInput
-//                   control={control}
-//                   name="owner_id"
-//                   placeholder="Paste Owner ID here"
-//                   label="Owner ID"
-//                   error={errors.owner_id?.message}
-//                 />
-//               </div>
-//             </Col>
-
-//             {/* Title */}
-//             <Col lg={6}>
-//               <div className="mb-3">
-//                 <TextFormInput
-//                   control={control}
-//                   name="title"
-//                   placeholder="Luxury 3BHK Apartment"
-//                   label="Property Title"
-//                   error={errors.title?.message}
-//                 />
-//               </div>
-//             </Col>
-
-//             {/* Property Type */}
-//             <Col lg={6}>
-//               <div className="mb-3">
-//                 <label className="form-label">Property Type</label>
-//                 <Controller
-//                   name="property_type"
-//                   control={control}
-//                   render={({ field }) => (
-//                     <SimpleSelect field={field} options={propertyTypeOptions} placeholder="Select Property Type" error={errors.property_type} />
-//                   )}
-//                 />
-//                 {errors.property_type && <div className="text-danger small mt-1">{errors.property_type.message}</div>}
-//               </div>
-//             </Col>
-
-//             {/* Category */}
-//             <Col lg={6}>
-//               <div className="mb-3">
-//                 <label className="form-label">Property Category</label>
-//                 <Controller
-//                   name="category_id"
-//                   control={control}
-//                   render={({ field }) => (
-//                     <SimpleSelect field={field} options={categoryOptions} placeholder="Select Category" error={errors.category_id} />
-//                   )}
-//                 />
-//                 {errors.category_id && <div className="text-danger small mt-1">{errors.category_id.message}</div>}
-//               </div>
-//             </Col>
-
-//             {/* Listing Type */}
-//             <Col lg={6}>
-//               <div className="mb-3">
-//                 <label className="form-label">Listing Type</label>
-//                 <Controller
-//                   name="listing_type"
-//                   control={control}
-//                   render={({ field }) => (
-//                     <SimpleSelect field={field} options={listingTypeOptions} placeholder="Select Listing Type" error={errors.listing_type} />
-//                   )}
-//                 />
-//                 {errors.listing_type && <div className="text-danger small mt-1">{errors.listing_type.message}</div>}
-//               </div>
-//             </Col>
-
-//             {/* Rent / Sale fields */}
-//             {listingType === 'rent' ? (
-//               <>
-//                 <Col lg={6}>
-//                   <TextFormInput control={control} name="monthly_rent" type="number" placeholder="25000" label="Monthly Rent (₹)" error={errors.monthly_rent?.message} />
-//                 </Col>
-//                 <Col lg={6}>
-//                   <TextFormInput control={control} name="security_deposit" type="number" placeholder="50000" label="Security Deposit (₹)" error={errors.security_deposit?.message} />
-//                 </Col>
-//               </>
-//             ) : (
-//               <Col lg={6}>
-//                 <TextFormInput control={control} name="sale_price" type="number" placeholder="5000000" label="Sale Price (₹)" error={errors.sale_price?.message} />
-//               </Col>
-//             )}
-
-//             {/* Other fields */}
-//             <Col lg={4}><TextFormInput control={control} name="area" type="number" placeholder="1200" label="Area (sq ft)" error={errors.area?.message} /></Col>
-//             <Col lg={4}><TextFormInput control={control} name="bedroom" type="number" placeholder="3" label="Bedrooms" error={errors.bedroom?.message} /></Col>
-//             <Col lg={4}><TextFormInput control={control} name="bathroom" type="number" placeholder="2" label="Bathrooms" error={errors.bathroom?.message} /></Col>
-//             <Col lg={4}><TextFormInput control={control} name="city" placeholder="Mumbai" label="City" error={errors.city?.message} /></Col>
-//             <Col lg={4}><TextFormInput control={control} name="state" placeholder="Maharashtra" label="State" error={errors.state?.message} /></Col>
-//             <Col lg={4}><TextFormInput control={control} name="locality" placeholder="Bandra West" label="Locality" error={errors.locality?.message} /></Col>
-//             <Col lg={4}><TextFormInput control={control} name="zipcode" placeholder="400050" label="Zipcode" error={errors.zipcode?.message} /></Col>
-//             <Col lg={8}><TextFormInput control={control} name="full_address" placeholder="123 Bandra West, Mumbai" label="Full Address" error={errors.full_address?.message} /></Col>
-//             <Col lg={12}><TextAreaFormInput control={control} name="description" label="Description" rows={3} placeholder="Beautiful apartment with modern amenities" error={errors.description?.message} /></Col>
-
-//             {/* Images */}
-//             <Col lg={6}>
-//               <div className="mb-3">
-//                 <label className="form-label">Property Images</label>
-//                 <input type="file" className={`form-control ${errors.images ? 'is-invalid' : ''}`} multiple accept="image/*" onChange={(e) => setImageFiles(Array.from(e.target.files))} />
-//                 {errors.images && <div className="text-danger small mt-1">{errors.images.message}</div>}
-//               </div>
-//             </Col>
-
-//             {/* Documents */}
-//             <Col lg={6}>
-//               <div className="mb-3">
-//                 <label className="form-label">Property Documents</label>
-//                 <input type="file" className={`form-control ${errors.documents ? 'is-invalid' : ''}`} multiple accept=".pdf,.doc,.docx" onChange={(e) => setDocumentFiles(Array.from(e.target.files))} />
-//                 {errors.documents && <div className="text-danger small mt-1">{errors.documents.message}</div>}
-//               </div>
-//             </Col>
-//           </Row>
-//         </CardBody>
-//       </Card>
-
-//       {/* Action Buttons */}
-//       <div className="mb-3 rounded">
-//         <Row className="justify-content-end g-2">
-//           <Col lg={2}>
-//             <Button variant="outline-primary" type="submit" className="w-100" disabled={isSubmitting}>
-//               {isSubmitting ? 'Creating...' : 'Create Property'}
-//             </Button>
-//           </Col>
-//           <Col lg={2}>
-//             <Button variant="danger" className="w-100" type="button" onClick={() => window.history.back()}>
-//               Cancel
-//             </Button>
-//           </Col>
-//         </Row>
-//       </div>
-//     </form>
-//   )
-// }
-
-// export default PropertyAdd
