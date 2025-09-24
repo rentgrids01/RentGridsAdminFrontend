@@ -1,5 +1,5 @@
 import IconifyIcon from '@/components/wrappers/IconifyIcon';
-import { getAllAgent } from '@/helpers/data';
+import { getAllAgent } from '@/helpers/getAllProperty';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button, Card, CardBody, CardFooter, Col, Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Row } from 'react-bootstrap';

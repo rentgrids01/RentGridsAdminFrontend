@@ -48,8 +48,8 @@ const useSignIn = () => {
       if (res.ok) {
         // Optionally store token/user info here
 
-        localStorage.setItem('token', data?.data?.access_token);
-        localStorage.setItem('user', JSON.stringify(data?.data?.user));
+        // localStorage.setItem('token', data?.data?.access_token);
+        // localStorage.setItem('user', JSON.stringify(data?.data?.user));
 
         push(queryParams['redirectTo'] ?? '/dashboards/analytics');
         showNotification({
